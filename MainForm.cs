@@ -146,6 +146,32 @@ namespace hexer
         private void MainForm_Load(object sender, EventArgs e)
         {
         }
+
+        private void aSCIIToolStripMenuItem_Click(object sender, EventArgs e)
+        {
+            hexView.TextEncoding = Encoding.ASCII;
+            hexView.Refresh();
+        }
+
+        private void uTF8ToolStripMenuItem_Click(object sender, EventArgs e)
+        {
+            hexView.TextEncoding = Encoding.UTF8;
+            hexView.Refresh();
+        }
+
+        private void uTF16ToolStripMenuItem_Click(object sender, EventArgs e)
+        {
+            hexView.TextEncoding = Encoding.Unicode;
+            hexView.Refresh();
+        }
+
+        private void showSidebySideToolStripMenuItem_Click(object sender, EventArgs e)
+        {
+            ToolStripMenuItem item = sender as ToolStripMenuItem;
+            item.Checked = !item.Checked;
+            hexView.ShowTextSideBySide = item.Checked;
+            hexView.Refresh();
+        }
     }
 }
 

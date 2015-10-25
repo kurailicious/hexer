@@ -46,10 +46,16 @@
             this.openMarkersToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.saveMarkersAsToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.saveMarkersToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
+            this.textToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
+            this.encodingToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
+            this.aSCIIToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
+            this.uTF8ToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
+            this.uTF16ToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.mainSplitContainer = new System.Windows.Forms.SplitContainer();
             this.hoverAddressInspector = new hexer.AddressInspector();
             this.selectedAddressInspector = new hexer.AddressInspector();
             this.hexView = new hexer.HexView();
+            this.showSidebySideToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.statusStrip.SuspendLayout();
             this.menuStrip.SuspendLayout();
             ((System.ComponentModel.ISupportInitialize)(this.mainSplitContainer)).BeginInit();
@@ -79,7 +85,8 @@
             this.menuStrip.Items.AddRange(new System.Windows.Forms.ToolStripItem[] {
             this.fileToolStripMenuItem,
             this.navigateToolStripMenuItem,
-            this.markersToolStripMenuItem});
+            this.markersToolStripMenuItem,
+            this.textToolStripMenuItem});
             this.menuStrip.Location = new System.Drawing.Point(0, 0);
             this.menuStrip.Name = "menuStrip";
             this.menuStrip.Size = new System.Drawing.Size(1111, 24);
@@ -135,7 +142,7 @@
             this.goToSelectedToolStripMenuItem.Name = "goToSelectedToolStripMenuItem";
             this.goToSelectedToolStripMenuItem.ShortcutKeys = ((System.Windows.Forms.Keys)(((System.Windows.Forms.Keys.Control | System.Windows.Forms.Keys.Shift) 
             | System.Windows.Forms.Keys.G)));
-            this.goToSelectedToolStripMenuItem.Size = new System.Drawing.Size(226, 22);
+            this.goToSelectedToolStripMenuItem.Size = new System.Drawing.Size(227, 22);
             this.goToSelectedToolStripMenuItem.Text = "Go To Selected";
             this.goToSelectedToolStripMenuItem.Click += new System.EventHandler(this.goToSelectedToolStripMenuItem_Click);
             // 
@@ -143,7 +150,7 @@
             // 
             this.goToToolStripMenuItem.Name = "goToToolStripMenuItem";
             this.goToToolStripMenuItem.ShortcutKeys = ((System.Windows.Forms.Keys)((System.Windows.Forms.Keys.Control | System.Windows.Forms.Keys.G)));
-            this.goToToolStripMenuItem.Size = new System.Drawing.Size(226, 22);
+            this.goToToolStripMenuItem.Size = new System.Drawing.Size(227, 22);
             this.goToToolStripMenuItem.Text = "Go To ...";
             this.goToToolStripMenuItem.Click += new System.EventHandler(this.goToToolStripMenuItem_Click);
             // 
@@ -151,7 +158,7 @@
             // 
             this.searchToolStripMenuItem.Name = "searchToolStripMenuItem";
             this.searchToolStripMenuItem.ShortcutKeys = ((System.Windows.Forms.Keys)((System.Windows.Forms.Keys.Control | System.Windows.Forms.Keys.F)));
-            this.searchToolStripMenuItem.Size = new System.Drawing.Size(226, 22);
+            this.searchToolStripMenuItem.Size = new System.Drawing.Size(227, 22);
             this.searchToolStripMenuItem.Text = "Search";
             this.searchToolStripMenuItem.Click += new System.EventHandler(this.searchToolStripMenuItem_Click);
             // 
@@ -207,6 +214,46 @@
             this.saveMarkersToolStripMenuItem.Text = "Save Markers";
             this.saveMarkersToolStripMenuItem.Click += new System.EventHandler(this.saveMarkersToolStripMenuItem_Click);
             // 
+            // textToolStripMenuItem
+            // 
+            this.textToolStripMenuItem.DropDownItems.AddRange(new System.Windows.Forms.ToolStripItem[] {
+            this.encodingToolStripMenuItem,
+            this.showSidebySideToolStripMenuItem});
+            this.textToolStripMenuItem.Name = "textToolStripMenuItem";
+            this.textToolStripMenuItem.Size = new System.Drawing.Size(41, 20);
+            this.textToolStripMenuItem.Text = "Text";
+            // 
+            // encodingToolStripMenuItem
+            // 
+            this.encodingToolStripMenuItem.DropDownItems.AddRange(new System.Windows.Forms.ToolStripItem[] {
+            this.aSCIIToolStripMenuItem,
+            this.uTF8ToolStripMenuItem,
+            this.uTF16ToolStripMenuItem});
+            this.encodingToolStripMenuItem.Name = "encodingToolStripMenuItem";
+            this.encodingToolStripMenuItem.Size = new System.Drawing.Size(173, 22);
+            this.encodingToolStripMenuItem.Text = "Encoding";
+            // 
+            // aSCIIToolStripMenuItem
+            // 
+            this.aSCIIToolStripMenuItem.Name = "aSCIIToolStripMenuItem";
+            this.aSCIIToolStripMenuItem.Size = new System.Drawing.Size(112, 22);
+            this.aSCIIToolStripMenuItem.Text = "ASCII";
+            this.aSCIIToolStripMenuItem.Click += new System.EventHandler(this.aSCIIToolStripMenuItem_Click);
+            // 
+            // uTF8ToolStripMenuItem
+            // 
+            this.uTF8ToolStripMenuItem.Name = "uTF8ToolStripMenuItem";
+            this.uTF8ToolStripMenuItem.Size = new System.Drawing.Size(112, 22);
+            this.uTF8ToolStripMenuItem.Text = "UTF-8";
+            this.uTF8ToolStripMenuItem.Click += new System.EventHandler(this.uTF8ToolStripMenuItem_Click);
+            // 
+            // uTF16ToolStripMenuItem
+            // 
+            this.uTF16ToolStripMenuItem.Name = "uTF16ToolStripMenuItem";
+            this.uTF16ToolStripMenuItem.Size = new System.Drawing.Size(112, 22);
+            this.uTF16ToolStripMenuItem.Text = "UTF-16";
+            this.uTF16ToolStripMenuItem.Click += new System.EventHandler(this.uTF16ToolStripMenuItem_Click);
+            // 
             // mainSplitContainer
             // 
             this.mainSplitContainer.Dock = System.Windows.Forms.DockStyle.Fill;
@@ -253,16 +300,25 @@
             // hexView
             // 
             this.hexView.Dock = System.Windows.Forms.DockStyle.Fill;
-            this.hexView.FileName = null;
+            this.hexView.FileName = "";
             this.hexView.HoverAddress = -1;
             this.hexView.Location = new System.Drawing.Point(0, 0);
             this.hexView.Name = "hexView";
             this.hexView.NumBytesInLine = 32;
             this.hexView.SelectedAddress = -1;
+            this.hexView.ShowTextSideBySide = true;
             this.hexView.Size = new System.Drawing.Size(887, 708);
             this.hexView.TabIndex = 0;
+            this.hexView.TextEncoding = ((System.Text.Encoding)(resources.GetObject("hexView.TextEncoding")));
             this.hexView.HoverAddressChanged += new System.EventHandler(this.hexView_HoverAddressChanged);
             this.hexView.SelectedAddressChanged += new System.EventHandler(this.hexView_SelectedAddressChanged);
+            // 
+            // showSidebySideToolStripMenuItem
+            // 
+            this.showSidebySideToolStripMenuItem.Name = "showSidebySideToolStripMenuItem";
+            this.showSidebySideToolStripMenuItem.Size = new System.Drawing.Size(173, 22);
+            this.showSidebySideToolStripMenuItem.Text = "Show Side-by-Side";
+            this.showSidebySideToolStripMenuItem.Click += new System.EventHandler(this.showSidebySideToolStripMenuItem_Click);
             // 
             // MainForm
             // 
@@ -312,6 +368,12 @@
         private System.Windows.Forms.ToolStripMenuItem saveMarkersToolStripMenuItem;
         private System.Windows.Forms.ToolStripMenuItem showMarkerWindowToolStripMenuItem;
         private System.Windows.Forms.ToolStripSeparator toolStripSeparator1;
+        private System.Windows.Forms.ToolStripMenuItem textToolStripMenuItem;
+        private System.Windows.Forms.ToolStripMenuItem encodingToolStripMenuItem;
+        private System.Windows.Forms.ToolStripMenuItem aSCIIToolStripMenuItem;
+        private System.Windows.Forms.ToolStripMenuItem uTF8ToolStripMenuItem;
+        private System.Windows.Forms.ToolStripMenuItem uTF16ToolStripMenuItem;
+        private System.Windows.Forms.ToolStripMenuItem showSidebySideToolStripMenuItem;
     }
 }
 

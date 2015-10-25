@@ -1,11 +1,7 @@
 ﻿using System;
-using System.Collections.Generic;
 using System.ComponentModel;
 using System.Drawing;
-using System.Data;
-using System.Linq;
 using System.Text;
-using System.Threading.Tasks;
 using System.Windows.Forms;
 using System.IO;
 
@@ -22,6 +18,7 @@ namespace hexer
 
         private int hSpacing = 1, vSpacing = 0;
         private int xStart, yStart;
+        private int xStartText;
         private SizeF byteSize;
 
         private int startLine = 0, totalLines = 1;
@@ -97,6 +94,31 @@ namespace hexer
         private Size CellSize
         { get { return new Size(ColumnWidth, LineHeight); } }
 
+        private Size TextCellSize
+        {
+            get { return new Size((int)textCharacterSize.Width, LineHeight); }
+        }
+
+        private bool showTextSideBySide = true;
+        public bool ShowTextSideBySide
+        {
+            get { return showTextSideBySide; }
+            set { showTextSideBySide = value;  }
+        }
+
+        private SizeF textCharacterSize;
+        private int TextCharacterWidth
+        {
+            get { return (int)textCharacterSize.Width; }
+        }
+
+        private Encoding textEncoding = Encoding.ASCII;
+        public Encoding TextEncoding
+        {
+            get { return textEncoding; }
+            set { textEncoding = value; }
+        } 
+
         public HexView()
         {
             InitializeComponent();
@@ -140,6 +162,10 @@ namespace hexer
             byteSize = g.MeasureString("00", cFont);
             xStart = (int)g.MeasureString("0x00000000", cFont).Width + hSpacing * 3;
             yStart = 1;
+
+            xStartText = xStart + numBytesInLine * ColumnWidth;
+
+            textCharacterSize = g.MeasureString("0", cFont);
         }
         private void ComputeVisible()
         {
@@ -173,11 +199,11 @@ namespace hexer
         }
         #endregion
 
-        private Bitmap DrawMarker(DataMarker marker, int address)
+        private Bitmap DrawMarker(DataMarker marker, int address, int cellWidth)
         {
             // draw marker to offscreen surface
             Point origin = new Point(0, 0);
-            int mWidth = ColumnWidth * marker.NumBytes;
+            int mWidth = cellWidth * marker.NumBytes;
             Bitmap markerBmp = new Bitmap(mWidth, LineHeight);
             var mg = Graphics.FromImage(markerBmp);
             var markerRect = new Rectangle(origin, new Size(mWidth, LineHeight));
@@ -211,6 +237,7 @@ namespace hexer
             g.FillRectangle(Brushes.Black, e.ClipRectangle);
             
             Bitmap markerBmp = null;
+            Bitmap markerBmpText = null;
             int skipAddresses = 0;
             int skippedAddresses = 0;
             if(fileBytes != null) {
@@ -227,36 +254,65 @@ namespace hexer
 
                         int address = pos * 8;
                         var point = new Point(xStart + i * ColumnWidth, y);
+                        var pointText = new Point(xStartText + i * TextCharacterWidth, y);
 
                         // in a marker, draw bg/line and skip rest
-                        if(skipAddresses > 0) {
+                        if (skipAddresses > 0) {
                             skipAddresses--;
                             skippedAddresses++;
                             // blit remaining portions of marker
                             Point origin = new Point(ColumnWidth * skippedAddresses, 0);
                             g.DrawImage(markerBmp, new Rectangle(point, CellSize), new Rectangle(origin, CellSize), GraphicsUnit.Pixel);
+                            if (ShowTextSideBySide)
+                            {
+                                Point originText = new Point(TextCharacterWidth * skippedAddresses, 0);
+                                g.DrawImage(markerBmpText, new Rectangle(pointText, TextCellSize), new Rectangle(originText, TextCellSize), GraphicsUnit.Pixel);
+                            }
                             continue;
                         }
 
                         var marker = MarkerRepository.Instance.GetMarker(address);
                         // handle markers
                         if(marker != null) {
-                            markerBmp = DrawMarker(marker, address);
+                            markerBmp = DrawMarker(marker, address, ColumnWidth);
+                            markerBmpText = DrawMarker(marker, address, TextCharacterWidth);
                             skipAddresses = marker.NumBytes - 1;
                             skippedAddresses = 0;
 
                             // blit first portion of marker
                             g.DrawImage(markerBmp, new Rectangle(point, CellSize), new Rectangle(new Point(0, 0), CellSize), GraphicsUnit.Pixel);
+                            if (ShowTextSideBySide)
+                            {
+                                g.DrawImage(markerBmpText, new Rectangle(pointText, TextCellSize), new Rectangle(new Point(0, 0), TextCellSize), GraphicsUnit.Pixel);
+                            }
                             continue;
                         }
 
                         // highlighting and selection
-                        if(address == hoverAddress) g.FillRectangle(Brushes.Blue, new RectangleF(point, byteSize));
-                        else if(hoverAddress >= 0 && address > hoverAddress && address - hoverAddress < 8 * 8 && !MarkerRepository.Instance.isMarker(HoverAddress))
+                        if (address == hoverAddress)
+                        {
+                            g.FillRectangle(Brushes.Blue, new RectangleF(point, byteSize));
+                            if (ShowTextSideBySide)
+                                g.FillRectangle(Brushes.Blue, new RectangleF(pointText, textCharacterSize));
+                        }
+                        else if (hoverAddress >= 0 && address > hoverAddress && address - hoverAddress < 8 * 8 && !MarkerRepository.Instance.isMarker(HoverAddress))
+                        {
                             g.FillRectangle(Brushes.DarkBlue, new RectangleF(point, byteSize));
-                        if(address == selectedAddress) g.DrawRectangle(new Pen(Brushes.Red, 1.0f), Rectangle.Round(new RectangleF(point, byteSize)));
-                        else if(selectedAddress >= 0 && address > selectedAddress && address - selectedAddress < 8 * 8 && !MarkerRepository.Instance.isMarker(SelectedAddress))
+                            if (ShowTextSideBySide)
+                                g.FillRectangle(Brushes.DarkBlue, new RectangleF(pointText, textCharacterSize));
+                        }
+                        if (address == selectedAddress)
+                        {
+                            g.DrawRectangle(new Pen(Brushes.Red, 1.0f), Rectangle.Round(new RectangleF(point, byteSize)));
+                            if (ShowTextSideBySide)
+                                g.DrawRectangle(new Pen(Brushes.Red, 1.0f), Rectangle.Round(new RectangleF(pointText, textCharacterSize)));
+                        }
+                        else if (selectedAddress >= 0 && address > selectedAddress && address - selectedAddress < 8 * 8 && !MarkerRepository.Instance.isMarker(SelectedAddress))
+                        {
                             g.DrawRectangle(new Pen(Brushes.DarkRed, 1.0f), Rectangle.Round(new RectangleF(point, byteSize)));
+                            if (ShowTextSideBySide)
+                                g.DrawRectangle(new Pen(Brushes.DarkRed, 1.0f), Rectangle.Round(new RectangleF(pointText, textCharacterSize)));
+                        }
 
                         // handle normal bytes
                         var byt = fileBytes[pos];
@@ -264,6 +320,12 @@ namespace hexer
                         var brush = Brushes.LightGray;
                         if(byt == 0) brush = Brushes.Gray;
                         g.DrawString(byteString, cFont, brush, point);
+
+                        if (ShowTextSideBySide)
+                        {
+                            var textString = TextEncoding.GetString(fileBytes, pos, 1);
+                            g.DrawString(textString, cFont, Brushes.Brown, pointText);
+                        }
                     }
 
                     line++;
@@ -329,9 +391,20 @@ namespace hexer
         public int GetAddressAt(Point loc)
         {
             int address = numBytesInLine * StartLine * 8; // start
+            int start = xStart;
+            int width = ColumnWidth;
+
+            if (ShowTextSideBySide && loc.X >= xStartText)
+            {
+                // Location inside text view, map location to appropriate character cell
+                start = xStartText;
+                width = TextCharacterWidth;
+            }
+
             address += (int)(Math.Max(0, (loc.Y - yStart)) / LineHeight) * numBytesInLine * 8; // lines
-            int xoffset = (int)(Math.Max(0, (loc.X - xStart)) / ColumnWidth) * 8; // x position
+            int xoffset = (int)(Math.Max(0, (loc.X - start)) / width) * 8; // x position
             address += Math.Min(xoffset, (numBytesInLine - 1) * 8);
+
             return address;
         }
 
